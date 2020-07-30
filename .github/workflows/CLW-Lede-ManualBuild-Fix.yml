@@ -23,7 +23,14 @@ on:
     types: [started]
 
 env:
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: master
+  CONFIG_FILE: .config
+  DIY_SH: diy.sh
   FREE_UP_DISK: false
+  SSH_ACTIONS: true
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
   TZ: Asia/Taipei
 
 jobs:
@@ -76,9 +83,6 @@ jobs:
         sudo -E apt-get -qq clean
                
     - name: Clone lede code
-      env:
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
@@ -137,6 +141,7 @@ jobs:
         mv $WORKINGDIR/openwrt-smartdns-master/* $WORKINGDIR/
         rmdir $WORKINGDIR/openwrt-smartdns-master
         rm $WORKINGDIR/master.zip
+        
         LUCIBRANCH="lede"
         WORKINGDIR="`pwd`/feeds/luci/applications/luci-app-smartdns"
         mkdir $WORKINGDIR -p
@@ -167,8 +172,6 @@ jobs:
         #./scripts/feeds install -a
     
     - name: Load custom configuration
-      env:
-        CONFIG_FILE: .config
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -176,8 +179,6 @@ jobs:
         cd openwrt && make defconfig
          
     - name: SSH connection to Actions
-      env:
-        SSH_ACTIONS: true
       uses: P3TERX/debugger-action@master
       if: env.SSH_ACTIONS == 'true'
 
@@ -198,8 +199,6 @@ jobs:
         echo "::set-output name=status::success"
         
     - name: Upload bin directory
-      env:
-        UPLOAD_BIN_DIR: false
       #uses: actions/upload-artifact@master
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
@@ -217,8 +216,6 @@ jobs:
         echo "::set-output name=status::success"
         
     - name: Upload firmware directory
-      env:
-        UPLOAD_FIRMWARE: true
       #uses: actions/upload-artifact@master
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
