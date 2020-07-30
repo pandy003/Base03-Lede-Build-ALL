@@ -185,6 +185,16 @@ jobs:
         make -j$(nproc) || make -j1 V=s
         echo "::set-output name=status::success"
         
+    - name: Upload bin directory
+      env:
+        UPLOAD_BIN_DIR: false
+      #uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_directory
+        path: openwrt/bin
+        
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
