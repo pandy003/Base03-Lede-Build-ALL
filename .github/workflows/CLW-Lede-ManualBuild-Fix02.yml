@@ -7,7 +7,7 @@
 # 原程式碼(二列)：用在 R7800 可編譯完成，但 x86_64 會編譯失敗，需增加eSir修正部份
 #=================================================
 
-name: CLW-Lede-ManualBuild-Fix03
+name: CLW-Lede-ManualBuild-Fix02
 
 on:
   release:
